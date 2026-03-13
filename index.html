@@ -1,0 +1,392 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Mercadinho</title>
+
+<style>
+
+body{
+font-family:Arial;
+margin:0;
+background:#f4f4f4;
+text-align:center;
+}
+
+header{
+background:linear-gradient(90deg,#d50000,#0d47a1);
+color:white;
+padding:20px;
+font-size:26px;
+font-weight:bold;
+cursor:pointer;
+}
+
+nav{
+background:#0d47a1;
+padding:10px;
+}
+
+nav button{
+background:white;
+color:#0d47a1;
+border:none;
+padding:10px;
+margin:5px;
+border-radius:6px;
+cursor:pointer;
+font-weight:bold;
+}
+
+section{
+display:none;
+padding:20px;
+}
+
+.active{
+display:block;
+}
+
+.container{
+background:white;
+margin:20px;
+padding:20px;
+border-radius:10px;
+box-shadow:0 3px 10px rgba(0,0,0,0.2);
+}
+
+input{
+padding:10px;
+margin:5px;
+border-radius:6px;
+border:1px solid #ccc;
+}
+
+button{
+padding:10px;
+margin:5px;
+border:none;
+border-radius:6px;
+background:#0d47a1;
+color:white;
+cursor:pointer;
+}
+
+button:hover{
+background:#d50000;
+}
+
+.produto{
+background:#e3f2fd;
+margin:10px;
+padding:10px;
+border-left:6px solid red;
+border-radius:6px;
+}
+
+.recado{
+background:#ffebee;
+margin:10px;
+padding:10px;
+border-left:6px solid blue;
+border-radius:6px;
+}
+
+.comentario{
+background:#f1f8ff;
+margin:10px;
+padding:10px;
+border-left:6px solid #0d47a1;
+border-radius:6px;
+}
+
+.admin{
+display:none;
+}
+
+</style>
+</head>
+
+<body>
+
+<header onclick="abrirAdmin()">🛒 Mercadinho</header>
+
+<nav>
+<button onclick="abrirPagina('produtos')">Produtos</button>
+<button onclick="abrirPagina('recados')">Recados</button>
+<button onclick="abrirPagina('comentarios')">Comentários</button>
+</nav>
+
+<!-- PRODUTOS -->
+
+<section id="produtos" class="active">
+
+<div class="container">
+
+<h2>🔎 Pesquisar Produto</h2>
+
+<input id="pesquisa" onkeyup="pesquisarProduto()" placeholder="Digite o produto">
+
+</div>
+
+<div class="container">
+
+<h2>Produtos</h2>
+
+<div id="listaProdutos"></div>
+
+</div>
+
+</section>
+
+
+<!-- RECADOS -->
+
+<section id="recados">
+
+<div class="container">
+
+<h2>📢 Recados</h2>
+
+<div id="listaRecados"></div>
+
+</div>
+
+</section>
+
+
+<!-- COMENTARIOS -->
+
+<section id="comentarios">
+
+<div class="container">
+
+<h2>💬 Comentários</h2>
+
+<input id="nomeCliente" placeholder="Seu nome">
+
+<input id="textoComentario" placeholder="Comentário">
+
+<button onclick="enviarComentario()">Enviar</button>
+
+<div id="listaComentarios"></div>
+
+</div>
+
+</section>
+
+
+<!-- ADMIN -->
+
+<section id="admin" class="admin">
+
+<div class="container">
+
+<h2>⚙ Configuração</h2>
+
+<input id="nomeProduto" placeholder="Nome do produto">
+
+<input id="precoProduto" placeholder="Preço">
+
+<br>
+
+<button onclick="adicionarProduto()">Adicionar Produto</button>
+
+<h3>Enviar Recado</h3>
+
+<input id="textoRecado" placeholder="Digite o recado">
+
+<button onclick="criarRecado()">Enviar Recado</button>
+
+</div>
+
+</section>
+
+
+<script>
+
+let produtos=[]
+let admin=false
+let cliques=0
+
+function abrirPagina(id){
+
+document.querySelectorAll("section").forEach(sec=>{
+
+sec.classList.remove("active")
+
+})
+
+document.getElementById(id).classList.add("active")
+
+}
+
+function abrirAdmin(){
+
+cliques++
+
+if(cliques>=5){
+
+let senha=prompt("Senha do administrador")
+
+if(senha=="1234"){
+
+admin=true
+document.getElementById("admin").style.display="block"
+
+abrirPagina("admin")
+
+mostrarProdutos()
+
+}else{
+
+alert("Senha incorreta")
+
+}
+
+cliques=0
+
+}
+
+}
+
+function adicionarProduto(){
+
+let nome=document.getElementById("nomeProduto").value
+let preco=document.getElementById("precoProduto").value
+
+produtos.push({nome,preco})
+
+mostrarProdutos()
+
+}
+
+function mostrarProdutos(){
+
+let lista=document.getElementById("listaProdutos")
+
+lista.innerHTML=""
+
+produtos.forEach((p,i)=>{
+
+lista.innerHTML+=`
+
+<div class="produto">
+
+<b>${p.nome}</b><br>
+
+R$ ${p.preco}
+
+${admin?`
+
+<br><br>
+
+<button onclick="editar(${i})">Editar</button>
+
+<button onclick="remover(${i})">Remover</button>
+
+`:''}
+
+</div>
+
+`
+
+})
+
+}
+
+function editar(i){
+
+let novoNome=prompt("Novo nome")
+let novoPreco=prompt("Novo preço")
+
+produtos[i].nome=novoNome
+produtos[i].preco=novoPreco
+
+mostrarProdutos()
+
+}
+
+function remover(i){
+
+produtos.splice(i,1)
+
+mostrarProdutos()
+
+}
+
+function pesquisarProduto(){
+
+let pesquisa=document.getElementById("pesquisa").value.toLowerCase()
+
+let lista=document.getElementById("listaProdutos")
+
+lista.innerHTML=""
+
+produtos
+.filter(p=>p.nome.toLowerCase().includes(pesquisa))
+.forEach(p=>{
+
+lista.innerHTML+=`
+
+<div class="produto">
+
+<b>${p.nome}</b><br>
+
+R$ ${p.preco}
+
+</div>
+
+`
+
+})
+
+}
+
+function criarRecado(){
+
+let texto=document.getElementById("textoRecado").value
+
+let data=new Date()
+
+let horario=data.toLocaleString()
+
+document.getElementById("listaRecados").innerHTML+=`
+
+<div class="recado">
+
+${texto}
+
+<br><small>${horario}</small>
+
+</div>
+
+`
+
+}
+
+function enviarComentario(){
+
+let nome=document.getElementById("nomeCliente").value
+let texto=document.getElementById("textoComentario").value
+
+document.getElementById("listaComentarios").innerHTML+=`
+
+<div class="comentario">
+
+<b>${nome}</b>
+
+<br>
+
+${texto}
+
+</div>
+
+`
+
+}
+
+</script>
+
+</body>
+</html>
